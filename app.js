@@ -1,3 +1,9 @@
+const SUPABASE_URL = "https://fttxcbiansawocwxdfhk.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0dHhjYmlhbnNhd29jd3hkZmhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MDExNDIsImV4cCI6MjA4NjQ3NzE0Mn0.QH-qpHb6n3cSzGT7cefN13QRJmep5wHMpi11WUUn8j8";
+
+const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+console.log("Supabase Connected");
 var products = JSON.parse(localStorage.getItem("products") || "[]");
 var bills = JSON.parse(localStorage.getItem("bills") || "[]");
 var bill = [];
