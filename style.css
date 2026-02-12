@@ -1,0 +1,166 @@
+/* ===== PAGE ===== */
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f5f6fa;
+    color: #2f3640;
+}
+
+h1 {
+    text-align: center;
+    font-size: 22px;
+    margin: 20px 0;
+    font-weight: 600;
+}
+
+/* ===== PAGE CONTAINER ===== */
+
+.page {
+    max-width: 420px;
+    margin: auto;
+    padding: 10px;
+}
+
+/* ===== CARDS ===== */
+
+.card {
+    background: white;
+    padding: 14px;
+    margin-bottom: 12px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.card h2 {
+    margin: 0 0 10px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #273c75;
+}
+
+/* ===== INPUTS ===== */
+
+input, select {
+    width: 100%;
+    padding: 8px;
+    margin: 6px 0;
+    border-radius: 6px;
+    border: 1px solid #dcdde1;
+    font-size: 13px;
+    box-sizing: border-box;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: #273c75;
+}
+
+/* ===== BUTTONS ===== */
+
+button {
+    width: 100%;
+    padding: 8px;
+    margin-top: 6px;
+    border: none;
+    border-radius: 6px;
+    background: #273c75;
+    color: white;
+    font-size: 13px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: #192a56;
+}
+
+/* ===== BILL ITEMS ===== */
+
+.item {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid #f1f2f6;
+    font-size: 13px;
+}
+
+.item:last-child {
+    border-bottom: none;
+}
+
+/* ===== TOTAL TEXT ===== */
+
+#totalBox {
+    font-size: 13px;
+    margin-top: 8px;
+    color: #e84118;
+    font-weight: 600;
+}
+
+/* ===== INVENTORY TABLE STYLE ===== */
+
+/* ===== INVENTORY IMAGE FIX ===== */
+
+.prod-img {
+    width: 32px;
+    height: 32px;
+    object-fit: cover;     /* crop properly */
+    border-radius: 6px;
+    vertical-align: middle;
+    margin-right: 8px;
+    border: 1px solid #ddd;
+}
+
+/* Align name + image nicely */
+.inventory-item div:first-child {
+    display: flex;
+    align-items: center;
+}
+
+/* Keep row height consistent */
+.inventory-item {
+    min-height: 42px;
+}
+#inventory {
+    margin-top: 10px;
+    border: 1px solid #dcdde1;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+/* Header Row */
+.inv-header {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 0.7fr;
+    background: #273c75;
+    color: white;
+    font-size: 13px;
+    font-weight: bold;
+    padding: 6px;
+}
+
+/* Data Rows */
+.inventory-item {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 0.7fr;
+    padding: 6px;
+    border-bottom: 1px solid #f1f2f6;
+    align-items: center;
+    font-size: 13px;
+    background: white;
+}
+
+.inventory-item:last-child {
+    border-bottom: none;
+}
+
+/* Delete Button */
+.delete-btn {
+    background: red;
+    color: white;
+    border: none;
+    padding: 3px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+}
