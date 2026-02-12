@@ -19,7 +19,7 @@
         <input id="pname" placeholder="Product Name">
         <input id="pcategory" placeholder="Category">
         <input id="psize" placeholder="Size (kg / pcs)">
-        <input id="pgst"type="number" placeholder="GST % ">
+        <input id="pgst" type="number" placeholder="GST %">
         <input id="pprice" type="number" placeholder="Price">
         <input id="pstock" type="number" placeholder="Stock">
         <input id="pimage" type="file" accept="image/*">
@@ -35,7 +35,6 @@
                placeholder="Search Product"
                onkeyup="searchInventory()">
 
-        <!-- Inventory Table Injected by JS -->
         <div id="inventory"></div>
 
         <button onclick="exportInventory()">
@@ -44,36 +43,33 @@
     </div>
 
     <!-- ===== BILLING ===== -->
-   <!-- ===== BILLING ===== -->
+    <div class="card">
 
-<div class="card">
+        <h2>Create Bill</h2>
 
-    <h2>Create Bill</h2>
+        <input id="cname" placeholder="Customer Name">
+        <input id="cphone" placeholder="Mobile Number">
 
-    <input id="cname" placeholder="Customer Name">
-    <input id="cphone" placeholder="Mobile Number">
+        <!-- SEARCHABLE PRODUCT -->
+        <input list="productsList"
+               id="productSearch"
+               placeholder="Search / Select Product">
 
-    <!-- SEARCHABLE PRODUCT SELECT -->
-    <input list="productsList"
-           id="productSearch"
-           placeholder="Search / Select Product">
+        <datalist id="productsList"></datalist>
 
-    <datalist id="productsList"></datalist>
+        <input id="qty"
+               type="number"
+               placeholder="Quantity">
 
-    <input id="qty"
-           type="number"
-           placeholder="Quantity">
+        <button onclick="addToBill()">Add Item</button>
 
-    <button onclick="addToBill()">Add Item</button>
+        <div id="billItems"></div>
+        <h3 id="totalBox"></h3>
 
-    
-    <div id="billItems"></div>
-    <h3 id="totalBox"></h3>
+        <button onclick="printBill()">Print Bill</button>
+        <button onclick="saveBill()">Save Bill</button>
 
-    <button onclick="printBill()">Print Bill</button>
-    <button onclick="saveBill()">Save Bill</button>
-
-</div>
+    </div>
 
     <!-- ===== SAVED BILLS ===== -->
     <div class="card">
@@ -83,6 +79,10 @@
 
 </div>
 
+<!-- ✅ IMPORTANT — Supabase Library FIRST -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<!-- ✅ Your JS File NEXT -->
 <script src="app.js"></script>
 
 </body>
