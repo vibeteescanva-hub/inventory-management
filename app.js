@@ -1,76 +1,139 @@
-const SUPABASE_URL = "https://fttxcbiansawocwxdfhk.supabase.co";
+/* ===== SUPABASE CONFIG ===== */
+
+const SUPABASE_URL = "https://fttxcbiansawocwxdfhk.supabase.co/";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0dHhjYmlhbnNhd29jd3hkZmhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MDExNDIsImV4cCI6MjA4NjQ3NzE0Mn0.QH-qpHb6n3cSzGT7cefN13QRJmep5wHMpi11WUUn8j8";
 
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-console.log("Supabase Connected");
-var products = JSON.parse(localStorage.getItem("products") || "[]");
-var bills = JSON.parse(localStorage.getItem("bills") || "[]");
+console.log("Supabase Ready");
+
+/* ===== GLOBAL DATA ===== */
+
+var products = [];
 var bill = [];
-var billCounter = parseInt(localStorage.getItem("billCounter") || "1");
+var billCounter = 1;
+
+/* ===== DOM HELPER ===== */
 
 function getEl(id) {
     return document.getElementById(id);
 }
 
-function saveData() {
-    localStorage.setItem("products", JSON.stringify(products));
-    localStorage.setItem("bills", JSON.stringify(bills));
-    localStorage.setItem("billCounter", billCounter);
+/* ===== LOAD PRODUCTS FROM DATABASE ===== */
+
+async function loadProductsFromDB() {
+    
+    const { data, error } = await client
+        .from("product")
+        .select("*")
+        .order("id", { ascending: true });
+
+    if (error) {
+        console.log("Load Error:", error);
+        return;
+    }
+
+    products = data || [];
+
+    refreshUI();
+}
+
+loadProductsFromDB();
+
+/* ===== ADD PRODUCT ===== */
+
+async function addProduct() {
+
+    var name = getEl("pname").value.trim();
+    var category = getEl("pcategory").value.trim();
+    var size = getEl("psize").value.trim();
+    var price = parseFloat(getEl("pprice").value);
+    var stock = parseInt(getEl("pstock").value);
+    var gst = parseFloat(getEl("pgst").value);
+
+    if (!name || !category || !size || isNaN(price) || isNaN(stock)) {
+        alert("Fill all fields");
+        return;
+    }
+
+    if (isNaN(gst)) gst = 0;
+
+    const { error } = await client
+        .from("product")
+        .insert([{
+            name: name,
+            category: category,
+            size: size,
+            price: price,
+            stock: stock,
+            gst: gst
+        }]);
+
+    if (error) {
+        console.log(error);
+        alert("Insert Failed");
+        return;
+    }
+
+    loadProductsFromDB();
+
+    getEl("pname").value = "";
+    getEl("pcategory").value = "";
+    getEl("psize").value = "";
+    getEl("pprice").value = "";
+    getEl("pstock").value = "";
+    getEl("pgst").value = "";
 }
 
 /* ===== DELETE PRODUCT ===== */
 
-function deleteProduct(index) {
+async function deleteProduct(id) {
+
     if (!confirm("Delete product?")) return;
-    products.splice(index, 1);
-    saveData();
-    refreshUI();
-}
 
-/* ===== EDIT PRODUCT ===== */
+    const { error } = await client
+        .from("product")
+        .delete()
+        .eq("id", id);
 
-function editProduct(index) {
-
-    var p = products[index];
-    if (!p) return;
-
-    var newPrice = prompt("Enter New Price:", p.price);
-    if (newPrice === null) return;
-
-    var newStock = prompt("Enter New Stock:", p.stock);
-    if (newStock === null) return;
-
-    var newGST = prompt("Enter GST %:", p.gst || 0);
-    if (newGST === null) return;
-
-    newPrice = parseFloat(newPrice);
-    newStock = parseInt(newStock);
-    newGST = parseFloat(newGST);
-
-    if (isNaN(newPrice) || isNaN(newStock) || isNaN(newGST)) {
-        alert("Invalid values");
+    if (error) {
+        console.log(error);
+        alert("Delete Failed");
         return;
     }
 
-    p.price = newPrice;
-    p.stock = newStock;
-    p.gst = newGST;
-
-    saveData();
-    refreshUI();
+    loadProductsFromDB();
 }
 
-/* ===== UI REFRESH ===== */
+/* ===== SEARCH INVENTORY ===== */
+
+function searchInventory() {
+
+    var searchBox = getEl("searchBox");
+    if (!searchBox) return;
+
+    var text = searchBox.value.toLowerCase();
+    var items = document.getElementsByClassName("inventory-item");
+
+    for (var i = 0; i < items.length; i++) {
+
+        var name = items[i].getAttribute("data-name");
+
+        if (name.indexOf(text) !== -1)
+            items[i].style.display = "grid";
+        else
+            items[i].style.display = "none";
+    }
+}
+
+/* ===== REFRESH UI ===== */
 
 function refreshUI() {
 
     var inventory = getEl("inventory");
-    var history = getEl("history");
     var dataList = getEl("productsList");
 
     if (inventory) inventory.innerHTML = "";
-    if (history) history.innerHTML = "";
     if (dataList) dataList.innerHTML = "";
 
     if (inventory) {
@@ -87,18 +150,18 @@ function refreshUI() {
     for (var i = 0; i < products.length; i++) {
 
         var p = products[i];
+
         if (!p.gst) p.gst = 0;
 
         if (inventory) {
             inventory.innerHTML +=
-                "<div class='inventory-item'>" +
+                "<div class='inventory-item' data-name='" + p.name.toLowerCase() + "'>" +
                     "<div>" + p.name + "</div>" +
                     "<div>" + p.stock + "</div>" +
                     "<div>Rs." + p.price + "</div>" +
                     "<div>" + p.gst + "%</div>" +
                     "<div>" +
-                        "<button onclick='editProduct(" + i + ")'>Edit</button> " +
-                        "<button onclick='deleteProduct(" + i + ")'>X</button>" +
+                        "<button onclick='deleteProduct(" + p.id + ")'>X</button>" +
                     "</div>" +
                 "</div>";
         }
@@ -110,68 +173,16 @@ function refreshUI() {
                 "</option>";
         }
     }
-
-    for (var j = bills.length - 1; j >= 0; j--) {
-
-        var b = bills[j];
-
-        if (history) {
-            history.innerHTML +=
-                "<div class='item'>" +
-                    "<span>Bill #" + b.billNo + " - " + b.customer + "</span>" +
-                "</div>";
-        }
-    }
-}
-
-/* ===== ADD PRODUCT ===== */
-
-function addProduct() {
-
-    var name = getEl("pname").value.trim();
-    var category = getEl("pcategory").value.trim();
-    var size = getEl("psize").value.trim();
-    var price = parseFloat(getEl("pprice").value);
-    var stock = parseInt(getEl("pstock").value);
-    var gst = parseFloat(getEl("pgst").value);
-
-    if (!name || !category || !size || isNaN(price) || isNaN(stock)) {
-        alert("Fill all fields");
-        return;
-    }
-
-    if (isNaN(gst)) gst = 0;
-
-    products.push({
-        name: name,
-        category: category,
-        size: size,
-        price: price,
-        stock: stock,
-        gst: gst
-    });
-
-    saveData();
-    refreshUI();
-
-    getEl("pname").value = "";
-    getEl("pcategory").value = "";
-    getEl("psize").value = "";
-    getEl("pprice").value = "";
-    getEl("pstock").value = "";
-    getEl("pgst").value = "";
 }
 
 /* ===== ADD TO BILL ===== */
 
-function addToBill() {
+async function addToBill() {
 
     var name = getEl("productSearch").value;
     var qty = parseInt(getEl("qty").value);
 
-    var p = products.find(function(item) {
-        return item.name === name;
-    });
+    var p = products.find(x => x.name === name);
 
     if (!p || isNaN(qty) || qty <= 0) {
         alert("Invalid product / qty");
@@ -183,7 +194,18 @@ function addToBill() {
         return;
     }
 
-    p.stock -= qty;
+    const newStock = p.stock - qty;
+
+    const { error } = await client
+        .from("product")
+        .update({ stock: newStock })
+        .eq("id", p.id);
+
+    if (error) {
+        console.log(error);
+        alert("Stock Update Failed");
+        return;
+    }
 
     bill.push({
         name: p.name,
@@ -192,9 +214,8 @@ function addToBill() {
         gst: p.gst || 0
     });
 
-    saveData();
+    loadProductsFromDB();
     showBill();
-    refreshUI();
 }
 
 /* ===== SHOW BILL ===== */
@@ -295,32 +316,10 @@ function printBill() {
     win.print();
 }
 
-/* ===== SAVE BILL ===== */
+/* ===== SAVE BILL (UI RESET ONLY) ===== */
 
 function saveBill() {
-
-    var cname = getEl("cname").value.trim();
-    if (!cname || bill.length === 0) {
-        alert("Missing data");
-        return;
-    }
-
-    bills.push({
-        billNo: billCounter,
-        customer: cname,
-        items: bill,
-        date: new Date().toLocaleString()
-    });
-
     billCounter++;
     bill = [];
-
-    saveData();
     showBill();
-    refreshUI();
 }
-
-/* ===== INIT ===== */
-
-refreshUI();
-showBill();
